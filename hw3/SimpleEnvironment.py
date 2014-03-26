@@ -85,7 +85,9 @@ class SimpleEnvironment(object):
         # TODO: Here you will implement a function that 
         # computes the distance between the configurations given
         # by the two node ids
-
+	start_config = numpy.array(self.discrete_env.NodeIdToConfiguration(start_id))
+	end_config   = numpy.array(self.discrete_env.NodeIdToConfiguration(end_id))
+        dist = numpy.linalg.norm(end_config - start_config)
         return dist
 
     def ComputeHeuristicCost(self, start_id, goal_id):
