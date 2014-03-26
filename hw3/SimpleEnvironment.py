@@ -98,6 +98,14 @@ class SimpleEnvironment(object):
         # computes the heuristic cost between the configurations
         # given by the two node ids
 
+	# here we use Manhattan distance. You can also use Euclidian distance. 
+	# however, for a square grid map, the manhattan usually give a better result
+	start_config = self.discrete_env.NodeIdToConfiguration(start_id)
+        goal_config   = self.discrete_env.NodeIdToConfiguration(goal_id)	
+	D = 1
+	dx = abs(start_config[0]-goal_config[0])
+	dy = abs(start_config[1]-goal_config[1])
+	cost = D*(dx+dy)
         return cost
 
     def InitializePlot(self, goal_config):
