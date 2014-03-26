@@ -28,8 +28,55 @@ class SimpleEnvironment(object):
         #  up the configuration associated with the particular node_id
         #  and return a list of node_ids that represent the neighboring
         #  nodes
-        
+	coord = self.discrete_env.NodeIdToGridCoord(node_id)
+	coord_successors = self.GetNeighbor(coord)
+	for i in xrange(len(coord_successors)):
+		successors.append(self.discrete_env.GridCoordToNodeId(coord_successors[i]))
         return successors
+
+    def GetNeighbor(self, coord):
+	x_limits = self.discrete_env.num_cells[0]
+        y_limits = self.discrete_env.num_cells[1]
+        coord_successors = []
+        # if the coord is at the four corner, we only return two neighbor       
+        if coord[0] == 0 and coord[1] == 0:
+                coord_successors.append([coord[0]+1, coord[1]])
+                coord_successors.append([coord[0], coord[1]+1])
+        elif coord[0] == x_limits-1 and coord[1] == 0:
+                coord_successors.append([coord[0]-1, coord[1]])
+                coord_successors.append([coord[0], coord[1]+1])
+        elif coord[0] == 0 and coord[1] == y_limits-1:
+                coord_successors.append([coord[0]+1, coord[1]])
+                coord_successors.append([coord[0], coord[1]-1])
+        elif coord[0] == x_limits-1 and coord[1] == y_limits-1:
+                coord_successors.append([coord[0]-1, coord[1]])
+                coord_successors.append([coord[0], coord[1]-1])
+        # if the coord is at the boundary and not the corner, we only return three neighbor
+        elif coord[0] == 0:
+                coord_successors.append([coord[0], coord[1]-1])
+                coord_successors.append([coord[0]+1, coord[1]])
+                coord_successors.append([coord[0], coord[1]+1])
+        elif coord[0] == x_limits-1:
+                coord_successors.append([coord[0], coord[1]-1])
+                coord_successors.append([coord[0]-1, coord[1]])
+                coord_successors.append([coord[0], coord[1]+1])
+        elif coord[1] == 0:
+                coord_successors.append([coord[0]-1, coord[1]])
+                coord_successors.append([coord[0], coord[1]+1])
+                coord_successors.append([coord[0]+1, coord[1]])
+        elif coord[1] == y_limits-1:
+                coord_successors.append([coord[0]-1, coord[1]])
+                coord_successors.append([coord[0], coord[1]-1])
+                coord_successors.append([coord[0]+1, coord[1]])
+        # if the coord is inside the boundary, we can return its four neighbor
+        else:
+		coord_successors.append([coord[0], coord[1]-1])
+                coord_successors.append([coord[0]-1, coord[1]])
+                coord_successors.append([coord[0], coord[1]+1])
+                coord_successors.append([coord[0]+1, coord[1]])
+
+        return coord_successors
+
 
     def ComputeDistance(self, start_id, end_id):
 
