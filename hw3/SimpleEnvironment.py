@@ -20,19 +20,50 @@ class SimpleEnvironment(object):
                                   [ 0, 0,  0, 1]])
         table.SetTransform(table_pose)
 
+    # This function returns the successors that are collision free, if no successors, return []
     def GetSuccessors(self, node_id):
-
-        successors = []
+	
+	successors = []
 
         # TODO: Here you will implement a function that looks
         #  up the configuration associated with the particular node_id
         #  and return a list of node_ids that represent the neighboring
         #  nodes
+
+	# if node_id is not collision free or is not in the boundary, directly return []
 	coord = self.discrete_env.NodeIdToGridCoord(node_id)
+	x_limits = self.discrete_env.num_cells[0]
+        y_limits = self.discrete_env.num_cells[1]
+
+	if coord[0]<0 or coord[1]<0 or coord[0]>=x_limits or coord[1]>=y_limits:
+		return successors
+
+	if self.IsCollision(coord):
+		return successors
+
+	# get the successors that are obstacle free
 	coord_successors = self.GetNeighbor(coord)
 	for i in xrange(len(coord_successors)):
 		successors.append(self.discrete_env.GridCoordToNodeId(coord_successors[i]))
         return successors
+
+    def IsCollision(self, coord):
+	config = self.discrete_env.GridCoordToConfiguration(coord)
+	# check whether it is collision free, if yes, just return empty list
+	init_T = self.robot.GetTransform()
+	env = self.robot.GetEnv()
+	# get the translation matrix based on the check_config
+	T = numpy.array([[1, 0, 0, config[0]],
+			 [0, 1, 0, config[1]],
+			 [0, 0, 1, 0],
+			 [0, 0, 0, 1]])
+	with env:
+		self.robot.SetTransform(T)
+	isCollision =  env.CheckCollision(self.robot)
+	with env:
+		self.robot.SetTransform(init_T)
+	return isCollision
+
 
     def GetNeighbor(self, coord):
 	x_limits = self.discrete_env.num_cells[0]
@@ -40,40 +71,64 @@ class SimpleEnvironment(object):
         coord_successors = []
         # if the coord is at the four corner, we only return two neighbor       
         if coord[0] == 0 and coord[1] == 0:
-                coord_successors.append([coord[0]+1, coord[1]])
-                coord_successors.append([coord[0], coord[1]+1])
+		if !self.IsCollision([coord[0]+1, coord[1]]):
+                	coord_successors.append([coord[0]+1, coord[1]])
+		if !self.IsCollision([coord[0], coord[1]+1]):
+                	coord_successors.append([coord[0], coord[1]+1])
         elif coord[0] == x_limits-1 and coord[1] == 0:
-                coord_successors.append([coord[0]-1, coord[1]])
-                coord_successors.append([coord[0], coord[1]+1])
+		if !self.IsCollision([coord[0]-1, coord[1]]):
+                	coord_successors.append([coord[0]-1, coord[1]])
+		if !self.IsCollision([coord[0], coord[1]+1]):
+                	coord_successors.append([coord[0], coord[1]+1])
         elif coord[0] == 0 and coord[1] == y_limits-1:
-                coord_successors.append([coord[0]+1, coord[1]])
-                coord_successors.append([coord[0], coord[1]-1])
+		if !self.IsCollision([coord[0]+1, coord[1]]):
+                	coord_successors.append([coord[0]+1, coord[1]])
+		if !self.IsCollision([coord[0], coord[1]-1]):
+                	coord_successors.append([coord[0], coord[1]-1])
         elif coord[0] == x_limits-1 and coord[1] == y_limits-1:
-                coord_successors.append([coord[0]-1, coord[1]])
-                coord_successors.append([coord[0], coord[1]-1])
+		if !self.IsCollision([coord[0]-1, coord[1]]):
+                	coord_successors.append([coord[0]-1, coord[1]])
+		if !self.IsCollision([coord[0], coord[1]-1]):
+                	coord_successors.append([coord[0], coord[1]-1])
         # if the coord is at the boundary and not the corner, we only return three neighbor
         elif coord[0] == 0:
-                coord_successors.append([coord[0], coord[1]-1])
-                coord_successors.append([coord[0]+1, coord[1]])
-                coord_successors.append([coord[0], coord[1]+1])
+		if !self.IsCollision([coord[0], coord[1]-1]):
+                	coord_successors.append([coord[0], coord[1]-1])
+		if !self.IsCollision([coord[0]+1, coord[1]]):
+                	coord_successors.append([coord[0]+1, coord[1]])
+		if !self.IsCollision([coord[0], coord[1]+1]):
+                	coord_successors.append([coord[0], coord[1]+1])
         elif coord[0] == x_limits-1:
-                coord_successors.append([coord[0], coord[1]-1])
-                coord_successors.append([coord[0]-1, coord[1]])
-                coord_successors.append([coord[0], coord[1]+1])
+		if !self.IsCollision([coord[0], coord[1]-1]):
+                	coord_successors.append([coord[0], coord[1]-1])
+		if !self.IsCollision([coord[0]-1, coord[1]]):
+                	coord_successors.append([coord[0]-1, coord[1]])
+		if !self.IsCollision([coord[0], coord[1]+1]):
+                	coord_successors.append([coord[0], coord[1]+1])
         elif coord[1] == 0:
-                coord_successors.append([coord[0]-1, coord[1]])
-                coord_successors.append([coord[0], coord[1]+1])
-                coord_successors.append([coord[0]+1, coord[1]])
+		if !self.IsCollision([coord[0]-1, coord[1]]):
+                	coord_successors.append([coord[0]-1, coord[1]])
+		if !self.IsCollision([coord[0], coord[1]+1]):
+                	coord_successors.append([coord[0], coord[1]+1])
+		if !self.IsCollision([coord[0]+1, coord[1]]):
+                	coord_successors.append([coord[0]+1, coord[1]])
         elif coord[1] == y_limits-1:
-                coord_successors.append([coord[0]-1, coord[1]])
-                coord_successors.append([coord[0], coord[1]-1])
-                coord_successors.append([coord[0]+1, coord[1]])
+		if !self.IsCollision([coord[0]-1, coord[1]]):
+                	coord_successors.append([coord[0]-1, coord[1]])
+		if !self.IsCollision([coord[0], coord[1]-1]):
+                	coord_successors.append([coord[0], coord[1]-1])
+		if !self.IsCollision([coord[0]+1, coord[1]]):
+                	coord_successors.append([coord[0]+1, coord[1]])
         # if the coord is inside the boundary, we can return its four neighbor
         else:
-		coord_successors.append([coord[0], coord[1]-1])
-                coord_successors.append([coord[0]-1, coord[1]])
-                coord_successors.append([coord[0], coord[1]+1])
-                coord_successors.append([coord[0]+1, coord[1]])
+		if !self.IsCollision([coord[0]-1, coord[1]]):
+			coord_successors.append([coord[0]-1, coord[1]])
+		if !self.IsCollision([coord[0]+1, coord[1]]):
+                	coord_successors.append([coord[0]+1, coord[1]])
+		if !self.IsCollision([coord[0], coord[1]-1]):
+                	coord_successors.append([coord[0], coord[1]-1])
+		if !self.IsCollision([coord[0], coord[1]+1]):
+                	coord_successors.append([coord[0], coord[1]+1])
 
         return coord_successors
 
