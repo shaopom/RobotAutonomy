@@ -42,7 +42,15 @@ class HerbEnvironment(object):
         #  up the configuration associated with the particular node_id
         #  and return a list of node_ids that represent the neighboring
         #  nodes
-        
+  	
+	# if node_id is not collision free or is not in the boundary, directly return []
+        coord = self.discrete_env.NodeIdToGridCoord(node_id)
+        if not self.IsInBoundary(coord) or self.IsCollision(coord):
+                return successors
+
+        # get the successors that are obstacle free, and in the boundary
+        successors = self.GetNeighbor(coord)
+      
         return successors
 
     def IsInBoundary(self, coord):
