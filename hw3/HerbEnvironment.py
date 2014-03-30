@@ -45,6 +45,49 @@ class HerbEnvironment(object):
         
         return successors
 
+    def IsInBoundary(self, coord):
+        config = self.discrete_env.GridCoordToConfiguration(coord)
+	for i in xrange(len(self.lower_limits)):
+		if config[i] < self.lower_limits[i] or config[i] > self.upper_limits[i]:
+			return False
+        return True
+
+
+    def IsCollision(self, coord):
+
+        config = self.discrete_env.GridCoordToConfiguration(coord)
+	activeDOFIndices = self.robot.GetActiveDOFIndices()
+        init_config = self.robot.GetActiveDOFValues()
+        env = self.robot.GetEnv()
+
+        with env:
+                self.robot.SetDOFValues(config, activeDOFIndices)
+        isCollision =  env.CheckCollision(self.robot)
+        with env:
+                self.robot.SetDOFValues(init_config, activeDOFIndices)
+        return isCollision
+
+
+    def GetNeighbor(self, coord):
+
+        successors_candidate = []
+	# generate a list of neighbors by change only one joint value at a time
+	for i in xrange(self.robot.GetActiveDOF()):
+		temp_coord = list(coord)
+		temp_coord[i] = temp_coord[i]+1
+		successors_candidate.append(temp_coord)
+		temp_coord = list(coord)
+		temp_coord[i] = temp_coord[i]-1
+		successors_candidate.append(temp_coord)
+
+        successors = []
+
+        for i in xrange(len(successors_candidate)):
+                if not self.IsCollision(successors_candidate[i]) and self.IsInBoundary(successors_candidate[i]):
+                        successors.append(self.discrete_env.GridCoordToNodeId(successors_candidate[i]))
+        return successors
+
+
     def ComputeDistance(self, start_id, end_id):
 
         dist = 0
@@ -52,6 +95,9 @@ class HerbEnvironment(object):
         # TODO: Here you will implement a function that 
         # computes the distance between the configurations given
         # by the two node ids
+	start_config = numpy.array(self.discrete_env.NodeIdToConfiguration(start_id))
+        end_config   = numpy.array(self.discrete_env.NodeIdToConfiguration(end_id))
+        dist = numpy.linalg.norm(end_config - start_config)
        
         return dist
 
@@ -62,6 +108,14 @@ class HerbEnvironment(object):
         # TODO: Here you will implement a function that 
         # computes the heuristic cost between the configurations
         # given by the two node ids
-        
+
+	# here we use Manhattan distance. You can also use Euclidian distance. 
+        # however, for a square grid map, the manhattan usually give a better result
+        start_config = self.discrete_env.NodeIdToConfiguration(start_id)
+        goal_config  = self.discrete_env.NodeIdToConfiguration(goal_id)
+        D = 1
+	for i in xrange(len(start_config)):
+        	delta = abs(start_config[i]-goal_config[i])
+        	cost = cost + D*delta
         return cost
 
