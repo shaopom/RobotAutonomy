@@ -97,7 +97,7 @@ class HerbEnvironment(object):
         successors = []
 
         for i in xrange(len(successors_candidate)):
-                if not self.IsCollision(successors_candidate[i]) and self.IsInBoundary(successors_candidate[i]):
+                if self.IsInBoundary(successors_candidate[i]) and not self.IsCollision(successors_candidate[i]):
                         successors.append(self.discrete_env.GridCoordToNodeId(successors_candidate[i]))
         return successors
 
