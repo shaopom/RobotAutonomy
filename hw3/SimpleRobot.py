@@ -34,7 +34,9 @@ class SimpleRobot(object):
         traj.Init(config_spec)
 
         idx = 0
+        print plan
         for pt in plan:
+            print pt
             traj.Insert(idx, pt)
             idx = idx + 1
         return traj

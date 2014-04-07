@@ -1,83 +1,114 @@
+from collections import deque
+import numpy as np
+from copy import deepcopy
+from DiscreteEnvironment import DiscreteEnvironment
+
 class BreadthFirstPlanner(object):
     
     def __init__(self, planning_env, visualize):
         self.planning_env = planning_env
         self.visualize = visualize
-        
+
     def Plan(self, start_config, goal_config):
         
+        if self.visualize and hasattr(self.planning_env, 'InitializePlot'):
+            self.planning_env.InitializePlot(goal_config)
+       
+
         plan = []
 
         # TODO: Here you will implement the breadth first planner
         #  The return path should be a numpy array
         #  of dimension k x n where k is the number of waypoints
-        #  and n is the dimension of the robots configuration space 
-       
-        from sets import Set    
-        import Queue           # import Queue to get the FIFO character of BFS
+        #  and n is the dimension of the robots configuration space
+    
+        final_queue_count = self.BFS(start_config,goal_config)
 
-        if self.visualize and hasattr(self.planning_env, 'InitializePlot'):
-            self.planning_env.InitializePlot(goal_config)
-        
-        start_id = self.planning_env.discrete_env.ConfigurationToNodeId(start_config)
-        goal_id  = self.planning_env.discrete_env.ConfigurationToNodeId(goal_config)
-
-        Q = Queue.Queue()
-        V = Set()              # import Set to check whether a node is visited or not
-        Route = dict()         # use dict to record each node's parent node,
-                               # in order to trace back to get the planned route.
-                               # Route[end_id] = start_id
-
-        Q.put(start_id)
-        V.add(start_id)
-
-        find_route = False
-
-        while not Q.empty():
-            node_id = Q.get()
-            if node_id == goal_id:
-                find_route = True
-                break
-            for successor_id in self.planning_env.GetSuccessors(node_id):
-                if not successor_id in V:
-                    parent_config = self.planning_env.discrete_env.NodeIdToConfiguration(node_id)
-                    child_config  = self.planning_env.discrete_env.NodeIdToConfiguration(successor_id)
-                    self.planning_env.PlotEdge(parent_config, child_config)
-                    V.add(successor_id)
-                    Q.put(successor_id)
-                    Route[successor_id] = node_id
-
-        if not find_route:
-            return []
-
-        current_id = goal_id
-        while current_id != start_id:
-            current_config = self.planning_env.discrete_env.NodeIdToConfiguration(current_id)
-            plan.append(current_config)
-            current_id = Route[current_id]
-        plan.append(start_config)
-        plan = plan[::-1]
+        final_plan = self.finalplan(final_queue_count[0])
    
-        return plan
+        return final_plan
 
-#Pseudo Code for BFS
-#procedure BFS(G,v) is
-#    create a queue Q
-#    create a vector set V
-#    enqueue v onto Q
-#    add v to V
-#    while Q is not empty loop
-#       t := Q.dequeue()
-#       if t is what we are looking for then
-#          return t
-#       end if
-#       for all edges e in G.adjacentEdges(t) loop
-#          u := G.adjacentVertex(t,e)
-#          if u is not in V then
-#              add u to V
-#              enqueue u onto Q
-#          end if
-#       end loop
-#    end loop
-#    return none
-#end BFS
+
+    def BFS(self,start_config,goal_config):
+        goal= self.planning_env.discrete_env.ConfigurationToNodeId(goal_config)
+        statenew = self.planning_env.discrete_env.ConfigurationToNodeId(start_config)
+
+        count = 1
+
+        last_visited = deque()
+            
+        parent = []
+        child = deepcopy(statenew)
+
+        main_queue = deque()
+        main_queue.append([parent,child])
+
+        final_queue = []
+        final_queue.append([parent,child])
+
+        while 1:
+
+            state_to_test = main_queue.popleft()
+
+            successors = self.planning_env.GetSuccessors(state_to_test[1])
+
+            if successors ==[]:
+                last_visited.append(state_to_test[1])
+                final_queue.append(state_to_test)
+            
+            else:
+                last_visited.append(state_to_test[1])
+
+                for x in xrange(0,len(successors)):
+                    i = 0
+                    for y in xrange(0,len(list(last_visited))):
+                        if (successors[x] == last_visited[y]):
+                            i = i+1
+
+                    if i==0:
+                        if (successors[x] == goal):
+                            final_queue.append([state_to_test[1],successors[x]])
+                            final_queue_submit = final_queue
+                            count = count + 1
+
+                            # comment the following line to make the code execution faster if not visualizing
+                            self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(successors[x]),self.planning_env.discrete_env.NodeIdToConfiguration(state_to_test[1]))
+                            
+                            return [final_queue_submit,count]
+                            
+                        else:
+                            main_queue.append([state_to_test[1],successors[x]])
+                            final_queue.append([state_to_test[1],successors[x]])
+                            count = count + 1
+
+                            # comment the following line to make the code execution faster if not visualizing
+                            self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(successors[x]),self.planning_env.discrete_env.NodeIdToConfiguration(state_to_test[1]))
+                    else:
+                        i==0
+
+    def finalplan(self,final_queue_count):
+        # this function traces the path from end to start
+
+        start = final_queue_count[0][1]
+        end = final_queue_count[-1][1]
+
+        final_queue_count.reverse()
+        inverse_final_queue = deepcopy(final_queue_count)
+        
+        start_inverse_final_queue = inverse_final_queue[0]
+        
+        count = 0
+        final=[]
+        final.append(self.planning_env.discrete_env.NodeIdToConfiguration(end))
+
+        while not (end == start):
+            if start_inverse_final_queue[0]==inverse_final_queue[count][1]:
+                final.append(self.planning_env.discrete_env.NodeIdToConfiguration(inverse_final_queue[count][1]))
+                start_inverse_final_queue = inverse_final_queue[count]
+                end = inverse_final_queue[count][1]
+                count = count+1       
+            else:
+                count=count+1
+        # reverse the new queue so as to get first element as start node and last as end node
+        final.reverse()
+        return final
