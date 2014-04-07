@@ -45,7 +45,7 @@ class HerbEnvironment(object):
   	
 	# if node_id is not collision free or is not in the boundary, directly return []
         coord = self.discrete_env.NodeIdToGridCoord(node_id)
-        if not self.IsInBoundary(coord) or self.IsCollision(coord):
+        if (not self.IsInBoundary(coord)) or self.IsCollision(coord):
                 return successors
 
         # get the successors that are obstacle free, and in the boundary
@@ -91,7 +91,7 @@ class HerbEnvironment(object):
         successors = []
 
         for i in xrange(len(successors_candidate)):
-                if not self.IsCollision(successors_candidate[i]) and self.IsInBoundary(successors_candidate[i]):
+                if (not self.IsCollision(successors_candidate[i])) and self.IsInBoundary(successors_candidate[i]):
                         successors.append(self.discrete_env.GridCoordToNodeId(successors_candidate[i]))
         return successors
 
