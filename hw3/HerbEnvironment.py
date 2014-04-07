@@ -54,11 +54,17 @@ class HerbEnvironment(object):
         return successors
 
     def IsInBoundary(self, coord):
-        config = self.discrete_env.GridCoordToConfiguration(coord)
-	for i in xrange(len(self.lower_limits)):
-		if config[i] < self.lower_limits[i] or config[i] > self.upper_limits[i]:
-			return False
+
+        for i in xrange(len(coord)):
+            if coord[i] == 0 or coord[i] == self.discrete_env.num_cells[i]:
+                return False
         return True
+
+        #config = self.discrete_env.GridCoordToConfiguration(coord)
+	#for i in xrange(len(self.lower_limits)):
+		#if config[i] < self.lower_limits[i] or config[i] > self.upper_limits[i]:
+			#return False
+        #return True
 
 
     def IsCollision(self, coord):

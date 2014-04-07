@@ -57,10 +57,10 @@ class SimpleEnvironment(object):
     	# get the translation matrix based on the config
         #print init_T
         #print config
-        init_T[0][3] = config[0]
-        init_T[1][3] = config[1]
-        T = init_T
-        #T = numpy.array([[1,0,0,config[0]],[0,1,0,config[1]],[0,0,1,0],[0,0,0,1]])
+        #init_T[0][3] = config[0]
+        #init_T[1][3] = config[1]
+        #T = init_T
+        T = numpy.array([[1,0,0,config[0]],[0,1,0,config[1]],[0,0,1,0],[0,0,0,1]])
 
         with env:
     		self.robot.SetTransform(T)
