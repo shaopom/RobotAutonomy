@@ -2,6 +2,7 @@ from collections import deque
 import numpy as np
 from copy import deepcopy
 from DiscreteEnvironment import DiscreteEnvironment
+import time
 
 class DepthFirstPlanner(object):
     
@@ -47,6 +48,8 @@ class DepthFirstPlanner(object):
         final_queue = []
         final_queue.append([parent,child])
 
+        original = time.time()
+
         while 1:
 
             state_to_test = main_queue.popleft()
@@ -73,7 +76,10 @@ class DepthFirstPlanner(object):
                             count = count + 1
 
                             # comment the following line to make the code execution faster if not visualizing
-                            self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(successors[x]),self.planning_env.discrete_env.NodeIdToConfiguration(state_to_test[1]))
+                            # self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(successors[x]),self.planning_env.discrete_env.NodeIdToConfiguration(state_to_test[1]))
+                            
+                            end = time.time()
+                            print "time", end-original
                             return [final_queue_submit,count]
                             
                         else:
@@ -85,7 +91,7 @@ class DepthFirstPlanner(object):
                             count = count + 1
                             
                             # comment the following line to make the code execution faster if  not visualizing
-                            self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(successors[x]),self.planning_env.discrete_env.NodeIdToConfiguration(state_to_test[1]))
+                            # self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(successors[x]),self.planning_env.discrete_env.NodeIdToConfiguration(state_to_test[1]))
                     else:
                         i==0
 
@@ -106,8 +112,13 @@ class DepthFirstPlanner(object):
         final=[]
         final.append(self.planning_env.discrete_env.NodeIdToConfiguration(end))
 
+        distance =0
+
         while not (end == start):
             if start_inverse_final_queue[0]==inverse_final_queue[count][1]:
+                
+                distance = distance + self.planning_env.ComputeDistance(inverse_final_queue[count][1],self.planning_env.discrete_env.ConfigurationToNodeId(final[-1]))
+                
                 final.append(self.planning_env.discrete_env.NodeIdToConfiguration(inverse_final_queue[count][1]))
                 start_inverse_final_queue = inverse_final_queue[count]
                 end = inverse_final_queue[count][1]
@@ -117,4 +128,5 @@ class DepthFirstPlanner(object):
                 count=count+1
         # reverse the new queue so as to get first element as start node and last as end node
         final.reverse()
+        print "distance", distance, "number of nodes ", count
         return final

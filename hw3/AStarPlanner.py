@@ -3,6 +3,7 @@ import numpy as np
 from copy import deepcopy
 from DiscreteEnvironment import DiscreteEnvironment
 from operator import itemgetter
+import time
 
 class AStarPlanner(object):
     
@@ -66,13 +67,14 @@ class AStarPlanner(object):
         final_queue = []
         final_queue.append([parent,child,cost])
 
-    
+        original = time.time()
+
         while 1:
             # convert the queue in list
             main_queue_list = (list(main_queue))
 
             #sort the list on the basis of nearest node to goal and then total cost
-            main_queue_list.sort(key=itemgetter(4,2))
+            main_queue_list.sort(key=itemgetter(4))
 
             #clear the queue and extend the new list in this queue            
             main_queue.clear()
@@ -113,6 +115,8 @@ class AStarPlanner(object):
                             # self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(successors[x]),self.planning_env.discrete_env.NodeIdToConfiguration(state_to_test[1]))
                             
                             #return the final path and number of nodes visited
+                            end = time.time()
+                            print "time", end-original
                             return [final_queue_submit,count]
                             
                         #if node not visited and not goal, then compute the new cost
@@ -123,18 +127,18 @@ class AStarPlanner(object):
                             
                             #donot append the node in main queue which has same heuristic cost
                             #this avoids the number of nodes to check
-                            if h_cost == state_to_test[4]:
-                                last_visited.append(successors[x])
-                                break
-                            else:
-                                #remove the comment from following line to get PlotEdge working for simple robot
+                            # if h_cost == state_to_test[4]:
+                            #     last_visited.append(successors[x])
+                            #     break
+                            # else:
+                            #     #remove the comment from following line to get PlotEdge working for simple robot
                                 # ONLY FOR SIMPLE ROBOT: comment the following line to make the code execution faster if not visualizing
                                 # self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(successors[x]),self.planning_env.discrete_env.NodeIdToConfiguration(state_to_test[1]))
                                 
-                                main_queue.append([state_to_test[1],successors[x],round(cost,3),d_cost,h_cost])
-                                final_queue.append([state_to_test[1],successors[x]])
-                                last_visited.append(successors[x])
-                                count = count + 1
+                            main_queue.append([state_to_test[1],successors[x],round(cost,3),d_cost,h_cost])
+                            final_queue.append([state_to_test[1],successors[x]])
+                            last_visited.append(successors[x])
+                            count = count + 1
                     else:
                         i==0
                         
@@ -155,8 +159,13 @@ class AStarPlanner(object):
         final=[]
         final.append(self.planning_env.discrete_env.NodeIdToConfiguration(end))
 
+        distance =0
+
         while not (end == start):
             if start_inverse_final_queue[0]==inverse_final_queue[count][1]:
+                
+                distance = distance + self.planning_env.ComputeDistance(inverse_final_queue[count][1],self.planning_env.discrete_env.ConfigurationToNodeId(final[-1]))
+                
                 final.append(self.planning_env.discrete_env.NodeIdToConfiguration(inverse_final_queue[count][1]))
                 start_inverse_final_queue = inverse_final_queue[count]
                 end = inverse_final_queue[count][1]
@@ -166,4 +175,5 @@ class AStarPlanner(object):
                 count=count+1
         # reverse the new queue so as to get first element as start node and last as end node
         final.reverse()
+        print "distance", distance, "number of nodes ", count
         return final
