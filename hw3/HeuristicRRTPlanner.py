@@ -53,7 +53,7 @@ class HeuristicRRTPlanner(object):
 
         # start the Heuristic RRT algorithm
         # set up the number of iterations we want to try before we give up
-        num_iter = 2000
+        num_iter = 500
         # set up the probability to generate goal config
         prob_goal = 0.5
 
@@ -158,11 +158,11 @@ class HeuristicRRTPlanner(object):
             mq = 1
         else:
             mq = 1 - (c-c_opt)/(c_max-c_opt)
-        print "c: %f" %(c)
-        print "c_cost: %f" %(c_cost)
-        print "h_cost: %f" %(h_cost)
-        print "c_opt: %f" %(c_opt)
-        print "c_max: %f" %(c_max)
-        print "mq: %f" %(mq)
-        print "========================"
+        #print "c: %f" %(c)
+        #print "c_cost: %f" %(c_cost)
+        #print "h_cost: %f" %(h_cost)
+        #print "c_opt: %f" %(c_opt)
+        #print "c_max: %f" %(c_max)
+        #print "mq: %f" %(mq)
+        #print "========================"
         return mq
