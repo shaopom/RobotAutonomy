@@ -1,6 +1,25 @@
 import numpy
 from RRTTree import RRTTree
 
+# Pseudocode for hRRT
+# Data: q_start, q_goal
+# Result: Path from start to goal
+# initialize Tree(q_start)
+# while q_goal is not in Tree do
+#   q_rand = RandomSample()
+#   q = NearestNeighbor(q_rand)
+#   Compute mq
+#   p = max(mq,p_min)
+#   if RandomValue() < p then
+#       Extend(q, q_rand)
+#   end
+# end
+#
+# mq = 1 - (c(q)-C_opt)/(C_max - C_opt)
+# c(q) = C(q_start, q) + H(q,q_goal)
+# C_opt = H(q_start,q_goal)
+# C_max = max c(q), for q belong to Tree()
+
 class HeuristicRRTPlanner(object):
 
     def __init__(self, planning_env, visualize):
@@ -93,4 +112,3 @@ class HeuristicRRTPlanner(object):
         print "plan time: %f" %(time.clock() - t0)
             
         return plan
-
