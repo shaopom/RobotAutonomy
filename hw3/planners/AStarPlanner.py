@@ -5,6 +5,8 @@ import time
 
 class AStarPlanner(Planner):
     def Plan(self, start_config, goal_config):
+        t0 = time.clock()
+        num_vertex = 0
         plan = []
         goal= self.planning_env.discrete_env.ConfigurationToNodeId(goal_config)
         start = self.planning_env.discrete_env.ConfigurationToNodeId(start_config)
@@ -29,10 +31,17 @@ class AStarPlanner(Planner):
                 while(n != start):
                     plan.insert(0, self.planning_env.discrete_env.NodeIdToConfiguration(n))
                     n = node_map[n]
+                path_length = 0
+                for i in xrange(len(plan)-1):
+                    path_length = path_length + self.planning_env.ComputeDistanceConfig(plan[i], plan[i+1])
+                print "number of vertices: %d" %(num_vertex)
+                print "path length: %f" %(path_length)
+                print "plan time: %f" %(time.clock() - t0)
                 return plan
 
             #find the nearest neighbors
             for neighbor in self.planning_env.GetSuccessors(current):
+                num_vertex = num_vertex + 1
                 if neighbor in closed_nodes:
                     continue
                 p_cost = path_cost[current] + self.planning_env.ComputeDistance(current,neighbor)
@@ -45,4 +54,7 @@ class AStarPlanner(Planner):
                     h_cost[neighbor] = p_cost + self.planning_env.ComputeDistance(neighbor,goal)
                     if not (neighbor in open_nodes):
                         open_nodes.append(neighbor)
+        print "number of vertices: %d" %(num_vertex)
+        print "path length: 0, cannot find a path"
+        print "plan time: %f" %(time.clock() - t0)
         return None
