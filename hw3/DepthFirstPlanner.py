@@ -1,3 +1,4 @@
+import time
 class DepthFirstPlanner(object):
     
     def __init__(self, planning_env, visualize):
@@ -6,6 +7,9 @@ class DepthFirstPlanner(object):
         self.nodes = dict()
 
     def Plan(self, start_config, goal_config):
+        
+        t0 = time.clock()
+        num_vertex = 0
         
         plan = []
         
@@ -40,6 +44,7 @@ class DepthFirstPlanner(object):
                 break
             for successor_id in self.planning_env.GetSuccessors(node_id):
                 if not successor_id in V:
+                    num_vertex = num_vertex + 1
                     parent_config = self.planning_env.discrete_env.NodeIdToConfiguration(node_id)
                     child_config  = self.planning_env.discrete_env.NodeIdToConfiguration(successor_id)
                     self.planning_env.PlotEdge(parent_config, child_config)
@@ -47,7 +52,10 @@ class DepthFirstPlanner(object):
                     S.append(successor_id)
                     Route[successor_id] = node_id
 
+        print "number of vertices: %d" %(num_vertex)
         if not find_route:
+            print "path length: 0"
+            print "plan time: %f" %(time.clock() - t0)
             return []
 
         current_id = goal_id
@@ -57,6 +65,13 @@ class DepthFirstPlanner(object):
             current_id = Route[current_id]
         plan.append(start_config)
         plan = plan[::-1]
+
+
+        path_length = 0
+        for i in xrange(len(plan)-1):
+            path_length = path_length + self.planning_env.ComputeDistanceConfig(plan[i], plan[i+1])
+        print "path length: %f" %(path_length)
+        print "plan time: %f" %(time.clock() - t0)
    
         return plan
 
