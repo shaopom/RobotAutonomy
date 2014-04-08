@@ -7,10 +7,7 @@ from SimpleRobot import SimpleRobot
 from HerbEnvironment import HerbEnvironment
 from SimpleEnvironment import SimpleEnvironment
 
-from AStarPlanner import AStarPlanner
-from DepthFirstPlanner import DepthFirstPlanner
-from BreadthFirstPlanner import BreadthFirstPlanner
-from HeuristicRRTPlanner import HeuristicRRTPlanner
+from planners import *
 
 def main(robot, planning_env, planner, vis_short=False, bis_short=False):
 

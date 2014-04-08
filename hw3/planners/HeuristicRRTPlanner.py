@@ -2,25 +2,6 @@ import numpy
 from RRTTree import RRTTree
 from . import Planner
 
-# Pseudocode for hRRT
-# Data: q_start, q_goal
-# Result: Path from start to goal
-# initialize Tree(q_start)
-# while q_goal is not in Tree do
-#   q_rand = RandomSample()
-#   q = NearestNeighbor(q_rand)
-#   Compute mq
-#   p = max(mq,p_min)
-#   if RandomValue() < p then
-#       Extend(q, q_rand)
-#   end
-# end
-#
-# mq = 1 - (c(q)-C_opt)/(C_max - C_opt)
-# c(q) = C(q_start, q) + H(q,q_goal)
-# C_opt = H(q_start,q_goal)
-# C_max = max c(q), for q belong to Tree()
-
 class HeuristicRRTPlanner(Planner):
     def Plan(self, start_config, goal_config, epsilon = 0.001):
         
@@ -143,12 +124,16 @@ class HeuristicRRTPlanner(Planner):
         c_cost = self.distance[q_id]
         h_cost = self.planning_env.ComputeHeuristicCost(q_id, self.goal_id)
         c_opt  = self.planning_env.ComputeHeuristicCost(self.start_id, self.goal_id)
-        max_q_id = sorted(self.distance, key=self.distance.get)[-1]
-        c_max  =  self.distance[max_q_id] + self.planning_env.ComputeHeuristicCost(max_q_id, self.goal_id)
-
+        c_max = 0
+        for i in xrange(len(self.distance)):
+            temp_cost = self.distance.values()[i] + self.planning_env.ComputeHeuristicCost(self.distance.keys()[i], self.goal_id)
+            if temp_cost > c_max:
+                c_max = temp_cost
         c = c_cost + h_cost
-        #print c
-        mq = 1 - (c-c_opt)/(c_max-c_opt)
+        if c_max == c_opt:
+            mq = 1
+        else:
+            mq = 1 - (c-c_opt)/(c_max-c_opt)
         #print "c: %f" %(c)
         #print "c_cost: %f" %(c_cost)
         #print "h_cost: %f" %(h_cost)
