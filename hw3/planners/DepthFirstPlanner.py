@@ -40,9 +40,10 @@ class DepthFirstPlanner(Planner):
             for successor_id in self.planning_env.GetSuccessors(node_id):
                 if not successor_id in V:
                     num_vertex = num_vertex + 1
-                    parent_config = self.planning_env.discrete_env.NodeIdToConfiguration(node_id)
-                    child_config  = self.planning_env.discrete_env.NodeIdToConfiguration(successor_id)
-                    self.planning_env.PlotEdge(parent_config, child_config)
+		    if self.visualize:
+                    	parent_config = self.planning_env.discrete_env.NodeIdToConfiguration(node_id)
+                    	child_config  = self.planning_env.discrete_env.NodeIdToConfiguration(successor_id)
+                    	self.planning_env.PlotEdge(parent_config, child_config)
                     V.add(successor_id)
                     S.append(successor_id)
                     Route[successor_id] = node_id
