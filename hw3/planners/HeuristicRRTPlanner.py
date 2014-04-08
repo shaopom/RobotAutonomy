@@ -1,5 +1,6 @@
 import numpy
 from RRTTree import RRTTree
+import random
 from . import Planner
 
 class HeuristicRRTPlanner(Planner):
@@ -32,8 +33,7 @@ class HeuristicRRTPlanner(Planner):
 
         # if it suceeeds to connect the goal, make isFail = False
         isFail = True
-        import random
-        num_vertex = 0
+
 
         for i in xrange(num_iter):
             # generate random configuration, q_rand
@@ -66,7 +66,7 @@ class HeuristicRRTPlanner(Planner):
                 else:
                     n_id = self.planning_env.discrete_env.ConfigurationToNodeId(config_n)
                     self.distance[n_id] = self.distance[q_id] + self.planning_env.ComputeDistanceConfig(q, config_n)
-                    num_vertex = num_vertex + 1
+                    self.node_count += 1
                     tree.AddVertex(config_n)
                     tree.AddEdge(mid,len(tree.vertices)-1) # id of config_n is the last one in vertices
                     # draw the expended edge
@@ -82,8 +82,6 @@ class HeuristicRRTPlanner(Planner):
         # recursive append the waypoints to the tree based on the tree.edges information
         # stop if we trace back to root, id = 0
         # start here
-        
-        self.node_count = num_vertex
         if isFail:
             return []
         else:

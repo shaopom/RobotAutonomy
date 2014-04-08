@@ -1,8 +1,6 @@
 from . import Planner
 class DepthFirstPlanner(Planner):
     def DoPlan(self, start_config, goal_config):
-        num_vertex = 0
-        
         plan = []
         
         start_id = self.planning_env.discrete_env.ConfigurationToNodeId(start_config)
@@ -26,7 +24,7 @@ class DepthFirstPlanner(Planner):
                 break
             for successor_id in self.planning_env.GetSuccessors(node_id):
                 if not successor_id in V:
-                    num_vertex = num_vertex + 1
+                    self.node_count += 1
 		    if self.visualize:
                     	parent_config = self.planning_env.discrete_env.NodeIdToConfiguration(node_id)
                     	child_config  = self.planning_env.discrete_env.NodeIdToConfiguration(successor_id)
