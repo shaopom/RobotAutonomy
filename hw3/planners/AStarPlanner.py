@@ -9,9 +9,6 @@ class AStarPlanner(Planner):
         goal= self.planning_env.discrete_env.ConfigurationToNodeId(goal_config)
         start = self.planning_env.discrete_env.ConfigurationToNodeId(start_config)
 
-        if self.visualize:
-            self.planning_env.InitializePlot(goal_config)
-
         closed_nodes = []
         open_nodes = [start]
         node_map = dict()
@@ -48,7 +45,4 @@ class AStarPlanner(Planner):
 
         #save metrics and return
         self.node_count = len(closed_nodes)
-        if plan:
-            return plan
-        else:
-            return None
+        return plan

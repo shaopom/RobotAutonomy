@@ -20,11 +20,14 @@ def main(robot, planning_env, planner, vis_short=False, bis_short=False):
         goal_config = numpy.array([3.0, 0.0])
 
     plan = planner.Plan(start_config, goal_config)
-    traj = robot.ConvertPlanToTrajectory(plan)
     print ("Number of nodes searched: " + str(planner.node_count))
     print ("Path Length: " + str(planner.path_length))
     print ("Planning Time: " + str(planner.plan_time) + " sec")
-
+    if not plan:
+        print("NO SOLUTION FOUND")
+        return 
+        
+    traj = robot.ConvertPlanToTrajectory(plan)
     if not vis_short and not bis_short:
         #raw_input('Press any key to execute trajectory')
         robot.ExecuteTrajectory(traj)
