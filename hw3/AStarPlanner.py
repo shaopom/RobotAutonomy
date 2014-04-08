@@ -112,7 +112,8 @@ class AStarPlanner(object):
                             
                             #remove the comment from following line to get PlotEdge working for simple robot
                             # ONLY FOR SIMPLE ROBOT: comment the following line to make the code execution faster if not visualizing
-                            # self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(successors[x]),self.planning_env.discrete_env.NodeIdToConfiguration(state_to_test[1]))
+                            if self.visualize:
+                                self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(successors[x]),self.planning_env.discrete_env.NodeIdToConfiguration(state_to_test[1]))
                             
                             #return the final path and number of nodes visited
                             end = time.time()
@@ -133,7 +134,8 @@ class AStarPlanner(object):
                             # else:
                             #     #remove the comment from following line to get PlotEdge working for simple robot
                                 # ONLY FOR SIMPLE ROBOT: comment the following line to make the code execution faster if not visualizing
-                                # self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(successors[x]),self.planning_env.discrete_env.NodeIdToConfiguration(state_to_test[1]))
+                            if self.visualize:
+                                self.planning_env.PlotEdge(self.planning_env.discrete_env.NodeIdToConfiguration(successors[x]),self.planning_env.discrete_env.NodeIdToConfiguration(state_to_test[1]))
                                 
                             main_queue.append([state_to_test[1],successors[x],round(cost,3),d_cost,h_cost])
                             final_queue.append([state_to_test[1],successors[x]])
