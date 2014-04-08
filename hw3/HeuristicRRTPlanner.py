@@ -151,6 +151,6 @@ class HeuristicRRTPlanner(object):
         c_max  = sorted(self.distance.values())[-1] 
 
         c = c_cost + h_cost
-        print c
+        #print c
         mq = 1 - (c-c_opt)/(c_max-c_opt)
         return mq
