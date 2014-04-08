@@ -1,11 +1,6 @@
 import time
-class DepthFirstPlanner(object):
-    
-    def __init__(self, planning_env, visualize):
-        self.planning_env = planning_env
-        self.visualize = visualize
-        self.nodes = dict()
-
+from Planner import Planner
+class DepthFirstPlanner(Planner):
     def Plan(self, start_config, goal_config):
         
         t0 = time.clock()

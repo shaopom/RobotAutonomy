@@ -1,5 +1,6 @@
 import numpy
 from RRTTree import RRTTree
+from Planner import Planner
 
 # Pseudocode for hRRT
 # Data: q_start, q_goal
@@ -20,13 +21,7 @@ from RRTTree import RRTTree
 # C_opt = H(q_start,q_goal)
 # C_max = max c(q), for q belong to Tree()
 
-class HeuristicRRTPlanner(object):
-
-    def __init__(self, planning_env, visualize):
-        self.planning_env = planning_env
-        self.visualize = visualize
-
-
+class HeuristicRRTPlanner(Planner):
     def Plan(self, start_config, goal_config, epsilon = 0.001):
         
         self.start_config = start_config
@@ -41,7 +36,7 @@ class HeuristicRRTPlanner(object):
         
         tree = RRTTree(self.planning_env, start_config)
         plan = []
-        if self.visualize and hasattr(self.planning_env, 'InitializePlot'):
+        if self.visualize:
             self.planning_env.InitializePlot(goal_config)
         # TODO: Here you will implement the rrt planner
         #  The return path should be an array

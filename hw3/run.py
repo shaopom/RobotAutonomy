@@ -41,7 +41,7 @@ def main(robot, planning_env, planner, vis_short=False, bis_short=False):
         # for debugging before the execution
         #print "Showing initial path..."
         #robot.ExecuteTrajectory(traj)
-        xxx = raw_input("Type any button to continue to shortened path...")
+        raw_input("Type any button to continue to shortened path...")
         print "Showing shortened path"
         robot.ExecuteTrajectory(traj_short)
 
@@ -108,9 +108,9 @@ if __name__ == "__main__":
         exit(0)
 
     main(robot, planning_env, planner, visualize_short, bisection_short)
-    xxx = raw_input("Type any button to exit!")
-    import IPython
-    IPython.embed()
+    raw_input("Type any button to exit!")
+    #import IPython
+    #IPython.embed()
 
         
     

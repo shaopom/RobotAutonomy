@@ -1,26 +1,17 @@
 import time
-class BreadthFirstPlanner(object):
-    
-    def __init__(self, planning_env, visualize):
-        self.planning_env = planning_env
-        self.visualize = visualize
-        
+from Planner import Planner
+class BreadthFirstPlanner(Planner):
     def Plan(self, start_config, goal_config):
         
         t0 = time.clock()
         num_vertex = 0
 
         plan = []
-
-        # TODO: Here you will implement the breadth first planner
-        #  The return path should be a numpy array
-        #  of dimension k x n where k is the number of waypoints
-        #  and n is the dimension of the robots configuration space 
        
         from sets import Set    
         import Queue           # import Queue to get the FIFO character of BFS
 
-        if self.visualize and hasattr(self.planning_env, 'InitializePlot'):
+        if self.visualize:
             self.planning_env.InitializePlot(goal_config)
         
         start_id = self.planning_env.discrete_env.ConfigurationToNodeId(start_config)
