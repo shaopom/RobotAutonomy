@@ -12,6 +12,9 @@ from DepthFirstPlanner import DepthFirstPlanner
 from BreadthFirstPlanner import BreadthFirstPlanner
 from HeuristicRRTPlanner import HeuristicRRTPlanner
 
+
+
+
 def main(robot, planning_env, planner):
 
     raw_input('Press any key to begin planning')
