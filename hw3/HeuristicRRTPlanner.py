@@ -25,10 +25,16 @@ class HeuristicRRTPlanner(object):
     def __init__(self, planning_env, visualize):
         self.planning_env = planning_env
         self.visualize = visualize
-        
+
 
     def Plan(self, start_config, goal_config, epsilon = 0.001):
         
+        self.start_config = start_config
+        self.goal_config  = goal_config
+
+        self.start_id = self.planning_env.discrete_env.ConfigurationToNodeId(self.start_config)
+        self.goal_id = self.planning_env.discrete_env.ConfigurationToNodeId(self.goal_config)
+
         # count for executing timing
         import time
         t0 = time.clock()
@@ -42,48 +48,70 @@ class HeuristicRRTPlanner(object):
         #  of dimension k x n where k is the number of waypoints
         #  and n is the dimension of the robots configuration space
 
-        # start the Forward RRT algorithm
+        q_start = start_config
+        q_goal  = goal_config
+
+        # start the Heuristic RRT algorithm
         # set up the number of iterations we want to try before we give up
-        num_iter = 1000
+        num_iter = 500
         # set up the probability to generate goal config
         prob_goal = 0.2
+
+        # p_min is the threshold between exploration and exploitation
+        # if p_min = 1, this will be just the simple Forward RRT
+        p_min = 0.3
+        p = 0
+        self.distance = dict()
+        self.distance[self.start_id] = 0
 
         # if it suceeeds to connect the goal, make isFail = False
         isFail = True
         import random
-        import time
         num_vertex = 0
-        for i in xrange(num_iter):
-            # generate random configuration, config_q
-            prob = random.random()
-            if prob < prob_goal:
-                config_q = numpy.copy(goal_config)
-            else:
-                config_q = self.planning_env.GenerateRandomConfiguration()
-            
-            # get the nearest neighbor from the Tree, based on config_q
-            mid, mdist = tree.GetNearestVertex(config_q)
-            # get the nearest neighbor, config_m
-            config_m = tree.vertices[mid]
-            # append config_n to the tree if config_n is addable
-            # where config_n is the extended node between config_m and config_q
-            # in our case, if it is extendable, config_n always equals to config_q
-            config_n = self.planning_env.Extend(config_m, config_q)
-            if numpy.array_equal(config_n, config_m):
-                continue
-            else:
-                num_vertex = num_vertex + 1
-                tree.AddVertex(config_n)
-                tree.AddEdge(mid,len(tree.vertices)-1) # id of config_n is the last one in vertices
-                # draw the expended edge
-                if len(config_m) == 2 :
-                    self.planning_env.PlotEdge(config_m, config_n)      
 
-            # check if config_n equals to goal_config, if yes, break
-            if numpy.array_equal(config_n, goal_config):
-                isFail = False
-                goal_id = len(tree.vertices)-1
-                break
+        for i in xrange(num_iter):
+            # generate random configuration, q_rand
+            if random.random() < prob_goal:
+                q_rand = numpy.copy(q_goal)
+            else:
+                q_rand = self.planning_env.GenerateRandomConfiguration()
+            
+            # get the nearest neighbor from the Tree, based on q_rand
+            mid, mdist = tree.GetNearestVertex(q_rand)
+
+            # get the nearest neighbor, q
+            q = tree.vertices[mid]
+
+            # compute mq
+            q_id = self.planning_env.discrete_env.ConfigurationToNodeId(q)
+            mq = self.GetNodeQuality(q_id)
+
+            if mq >= p_min:
+                p = mq
+            else:
+                p = p_min
+
+            if random.random() < p:
+                # append config_n to the tree if config_n is addable
+                # where config_n is the extended node between q and q_rand
+                config_n = self.planning_env.Extend(q, q_rand)
+                if numpy.array_equal(config_n, q):
+                    continue
+                else:
+                    n_id = self.planning_env.discrete_env.ConfigurationToNodeId(config_n)
+                    self.distance[n_id] = self.distance[q_id] + self.planning_env.ComputeDistanceConfig(q, config_n)
+                    num_vertex = num_vertex + 1
+                    tree.AddVertex(config_n)
+                    tree.AddEdge(mid,len(tree.vertices)-1) # id of config_n is the last one in vertices
+                    # draw the expended edge
+                    if len(q) == 2 :
+                        self.planning_env.PlotEdge(q, config_n)      
+
+                # check if config_n equals to goal_config, if yes, break
+                if numpy.array_equal(config_n, q_goal):
+                    isFail = False
+                    goal_id = len(tree.vertices)-1
+                    break
 
         # recursive append the waypoints to the tree based on the tree.edges information
         # stop if we trace back to root, id = 0
@@ -92,9 +120,11 @@ class HeuristicRRTPlanner(object):
         print "number of vertices: %d" %(num_vertex)
         
         if isFail:
-            print "path length: 0"
+            print "path length: cannot make it in the amounted iterations!"
             print "plan time: %f" %(time.clock() - t0)
-            return []
+            plan.append(start_config)
+            plan.append(goal_config)
+            return plan
         else:
             current_id = goal_id
             while current_id != 0:
@@ -112,3 +142,15 @@ class HeuristicRRTPlanner(object):
         print "plan time: %f" %(time.clock() - t0)
             
         return plan
+
+    def GetNodeQuality(self, q_id):
+
+        c_cost = self.distance[q_id]
+        h_cost = self.planning_env.ComputeHeuristicCost(q_id, self.goal_id)
+        c_opt  = self.planning_env.ComputeHeuristicCost(self.start_id, self.goal_id)
+        c_max  = sorted(self.distance.values())[-1] 
+
+        c = c_cost + h_cost
+        print c
+        mq = 1 - (c-c_opt)/(c_max-c_opt)
+        return mq
