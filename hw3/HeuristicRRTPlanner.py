@@ -55,7 +55,7 @@ class HeuristicRRTPlanner(object):
         # set up the number of iterations we want to try before we give up
         num_iter = 500
         # set up the probability to generate goal config
-        prob_goal = 0.2
+        prob_goal = 0.5
 
         # p_min is the threshold between exploration and exploitation
         # if p_min = 1, this will be just the simple Forward RRT
@@ -148,9 +148,17 @@ class HeuristicRRTPlanner(object):
         c_cost = self.distance[q_id]
         h_cost = self.planning_env.ComputeHeuristicCost(q_id, self.goal_id)
         c_opt  = self.planning_env.ComputeHeuristicCost(self.start_id, self.goal_id)
-        c_max  = sorted(self.distance.values())[-1] 
+        max_q_id = sorted(self.distance, key=self.distance.get)[-1]
+        c_max  =  self.distance[max_q_id] + self.planning_env.ComputeHeuristicCost(max_q_id, self.goal_id)
 
         c = c_cost + h_cost
         #print c
         mq = 1 - (c-c_opt)/(c_max-c_opt)
+        #print "c: %f" %(c)
+        #print "c_cost: %f" %(c_cost)
+        #print "h_cost: %f" %(h_cost)
+        #print "c_opt: %f" %(c_opt)
+        #print "c_max: %f" %(c_max)
+        #print "mq: %f" %(mq)
+        #print "========================"
         return mq

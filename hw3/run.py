@@ -39,8 +39,8 @@ def main(robot, planning_env, planner, vis_short=False, bis_short=False):
         traj_short = robot.ConvertPlanToTrajectory(plan_short)
 
         # for debugging before the execution
-        print "Showing initial path..."
-        robot.ExecuteTrajectory(traj)
+        #print "Showing initial path..."
+        #robot.ExecuteTrajectory(traj)
         xxx = raw_input("Type any button to continue to shortened path...")
         print "Showing shortened path"
         robot.ExecuteTrajectory(traj_short)
