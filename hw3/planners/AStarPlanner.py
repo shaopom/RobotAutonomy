@@ -4,7 +4,7 @@ from . import Planner
 import time
 
 class AStarPlanner(Planner):
-    def Plan(self, start_config, goal_config):
+    def DoPlan(self, start_config, goal_config):
         plan = []
         goal= self.planning_env.discrete_env.ConfigurationToNodeId(goal_config)
         start = self.planning_env.discrete_env.ConfigurationToNodeId(start_config)
@@ -29,7 +29,7 @@ class AStarPlanner(Planner):
                 while(n != start):
                     plan.insert(0, self.planning_env.discrete_env.NodeIdToConfiguration(n))
                     n = node_map[n]
-                return plan
+                break
 
             #find the nearest neighbors
             for neighbor in self.planning_env.GetSuccessors(current):
@@ -45,4 +45,10 @@ class AStarPlanner(Planner):
                     h_cost[neighbor] = p_cost + self.planning_env.ComputeDistance(neighbor,goal)
                     if not (neighbor in open_nodes):
                         open_nodes.append(neighbor)
-        return None
+
+        #save metrics and return
+        self.node_count = len(closed_nodes)
+        if plan:
+            return plan
+        else:
+            return None
