@@ -186,6 +186,16 @@ class HerbEnvironment(object):
 
         return numpy.array(res)
 
+    def ComputeDistanceConfig(self, start_config, end_config):
+
+        #
+        # TODO: Implement a function which computes the distance between
+        # two configurations
+        #
+        sconfig = numpy.array(start_config)
+        econfig = numpy.array(end_config)
+        return numpy.linalg.norm(econfig - sconfig)
+
     def Extend(self, start_config, end_config, num_points=500):
 
         #

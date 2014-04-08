@@ -107,7 +107,7 @@ class HeuristicRRTPlanner(object):
         
         path_length = 0
         for i in xrange(len(plan)-1):
-            path_length = path_length + self.planning_env.ComputeDistance(plan[i], plan[i+1])
+            path_length = path_length + self.planning_env.ComputeDistanceConfig(plan[i], plan[i+1])
         print "path length: %f" %(path_length)
         print "plan time: %f" %(time.clock() - t0)
             
