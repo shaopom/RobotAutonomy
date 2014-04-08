@@ -12,7 +12,7 @@ from DepthFirstPlanner import DepthFirstPlanner
 from BreadthFirstPlanner import BreadthFirstPlanner
 from HeuristicRRTPlanner import HeuristicRRTPlanner
 
-def main(robot, planning_env, planner):
+def main(robot, planning_env, planner, vis_short=False, bis_short=False):
 
     raw_input('Press any key to begin planning')
 
@@ -25,8 +25,26 @@ def main(robot, planning_env, planner):
     plan = planner.Plan(start_config, goal_config)
     traj = robot.ConvertPlanToTrajectory(plan)
 
-    raw_input('Press any key to execute trajectory')
-    robot.ExecuteTrajectory(traj)
+    if not vis_short and not bis_short:
+        raw_input('Press any key to execute trajectory')
+        robot.ExecuteTrajectory(traj)
+    else:
+        if vis_short:
+            planning_env.PlotPath(plan)
+        #traj = robot.ConvertPlanToTrajectory(plan)
+
+        plan_short = planning_env.ShortenPath(plan,10.0,bis_short)
+        if vis_short:
+            planning_env.PlotPath(plan_short)
+        traj_short = robot.ConvertPlanToTrajectory(plan_short)
+
+        # for debugging before the execution
+        print "Showing initial path..."
+        robot.ExecuteTrajectory(traj)
+        xxx = raw_input("Type any button to continue to shortened path...")
+        print "Showing shortened path"
+        robot.ExecuteTrajectory(traj_short)
+
 
 if __name__ == "__main__":
     
@@ -44,6 +62,10 @@ if __name__ == "__main__":
                         help='Enable debug logging')
     parser.add_argument('-m', '--manip', type=str, default='right',
                         help='The manipulator to plan with (right or left) - only applicable if robot is of type herb')
+    parser.add_argument('-vs', '--visualize_short', action='store_true',
+                        help='Enable visualization of path shortening (only applicable for simple robot)')
+    parser.add_argument('-bs', '--bisection_short', action='store_true',
+                        help='Enable bisection path shortening')
     args = parser.parse_args()
     
     openravepy.RaveInitialize(True, level=openravepy.DebugLevel.Info)
@@ -58,10 +80,13 @@ if __name__ == "__main__":
 
     # First setup the environment and the robot
     visualize = args.visualize
+    visualize_short = args.visualize_short
+    bisection_short = args.bisection_short
     if args.robot == 'herb':
         robot = HerbRobot(env, args.manip)
         planning_env = HerbEnvironment(robot, args.resolution)
         visualize = False
+        visualize_short = False
     elif args.robot == 'simple':
         robot = SimpleRobot(env)
         planning_env = SimpleEnvironment(robot, args.resolution)
@@ -82,8 +107,8 @@ if __name__ == "__main__":
         print 'Unknown planner option: %s' % args.planner
         exit(0)
 
-    main(robot, planning_env, planner)
-
+    main(robot, planning_env, planner, visualize_short, bisection_short)
+    xxx = raw_input("Type any button to exit!")
     import IPython
     IPython.embed()
 
