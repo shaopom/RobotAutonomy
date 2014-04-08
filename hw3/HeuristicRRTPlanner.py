@@ -59,7 +59,7 @@ class HeuristicRRTPlanner(object):
 
         # p_min is the threshold between exploration and exploitation
         # if p_min = 1, this will be just the simple Forward RRT
-        p_min = 0.3
+        p_min = 0.2
         p = 0
         self.distance = dict()
         self.distance[self.start_id] = 0
@@ -148,17 +148,19 @@ class HeuristicRRTPlanner(object):
         c_cost = self.distance[q_id]
         h_cost = self.planning_env.ComputeHeuristicCost(q_id, self.goal_id)
         c_opt  = self.planning_env.ComputeHeuristicCost(self.start_id, self.goal_id)
-        max_q_id = sorted(self.distance, key=self.distance.get)[-1]
-        c_max  =  self.distance[max_q_id] + self.planning_env.ComputeHeuristicCost(max_q_id, self.goal_id)
-
+        c_max = 0
+        for i in xrange(len(self.distance)):
+            temp_cost = self.distance.values()[i] + self.planning_env.ComputeHeuristicCost(self.distance.keys()[i], self.goal_id)
+            if temp_cost > c_max:
+                c_max = temp_cost
         c = c_cost + h_cost
-        #print c
+
         mq = 1 - (c-c_opt)/(c_max-c_opt)
-        #print "c: %f" %(c)
-        #print "c_cost: %f" %(c_cost)
-        #print "h_cost: %f" %(h_cost)
-        #print "c_opt: %f" %(c_opt)
-        #print "c_max: %f" %(c_max)
-        #print "mq: %f" %(mq)
-        #print "========================"
+        print "c: %f" %(c)
+        print "c_cost: %f" %(c_cost)
+        print "h_cost: %f" %(h_cost)
+        print "c_opt: %f" %(c_opt)
+        print "c_max: %f" %(c_max)
+        print "mq: %f" %(mq)
+        print "========================"
         return mq
