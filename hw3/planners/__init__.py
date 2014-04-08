@@ -3,7 +3,7 @@ class Planner(object):
     def __init__(self, planning_env, visualize):
         self.planning_env = planning_env
         self.visualize = visualize and hasattr(self.planning_env, 'InitializePlot')
-        self.path_length = 0
+        self.path_length = 0.0
         self.node_count = 0
         self.plan_time = 0
         

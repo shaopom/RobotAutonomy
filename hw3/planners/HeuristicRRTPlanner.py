@@ -3,26 +3,16 @@ from RRTTree import RRTTree
 from . import Planner
 
 class HeuristicRRTPlanner(Planner):
-    def Plan(self, start_config, goal_config, epsilon = 0.001):
+    def DoPlan(self, start_config, goal_config, epsilon = 0.001):
         
         self.start_config = start_config
         self.goal_config  = goal_config
 
         self.start_id = self.planning_env.discrete_env.ConfigurationToNodeId(self.start_config)
         self.goal_id = self.planning_env.discrete_env.ConfigurationToNodeId(self.goal_config)
-
-        # count for executing timing
-        import time
-        t0 = time.clock()
         
         tree = RRTTree(self.planning_env, start_config)
         plan = []
-        if self.visualize:
-            self.planning_env.InitializePlot(goal_config)
-        # TODO: Here you will implement the rrt planner
-        #  The return path should be an array
-        #  of dimension k x n where k is the number of waypoints
-        #  and n is the dimension of the robots configuration space
 
         q_start = start_config
         q_goal  = goal_config
@@ -93,14 +83,9 @@ class HeuristicRRTPlanner(Planner):
         # stop if we trace back to root, id = 0
         # start here
         
-        print "number of vertices: %d" %(num_vertex)
-        
+        self.node_count = num_vertex
         if isFail:
-            print "path length: cannot make it in the amounted iterations!"
-            print "plan time: %f" %(time.clock() - t0)
-            plan.append(start_config)
-            plan.append(goal_config)
-            return plan
+            return []
         else:
             current_id = goal_id
             while current_id != 0:
@@ -110,13 +95,7 @@ class HeuristicRRTPlanner(Planner):
         
         # reverse the order of plan
             plan = plan[::-1]
-        
-        path_length = 0
-        for i in xrange(len(plan)-1):
-            path_length = path_length + self.planning_env.ComputeDistanceConfig(plan[i], plan[i+1])
-        print "path length: %f" %(path_length)
-        print "plan time: %f" %(time.clock() - t0)
-            
+
         return plan
 
     def GetNodeQuality(self, q_id):
