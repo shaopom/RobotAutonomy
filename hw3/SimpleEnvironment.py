@@ -151,7 +151,7 @@ class SimpleEnvironment(object):
         pl.plot([sconfig[0], econfig[0]],
                 [sconfig[1], econfig[1]],
                 color, linewidth=2.5)
-        pl.draw()
+        #pl.draw()
 
     #########################################################################
     ################  Codes about hRRT ######################################

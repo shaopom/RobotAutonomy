@@ -8,6 +8,7 @@ from HerbEnvironment import HerbEnvironment
 from SimpleEnvironment import SimpleEnvironment
 
 from planners import *
+import pylab as pl
 
 def main(robot, planning_env, planner, vis_short=False, bis_short=False):
 
@@ -26,6 +27,7 @@ def main(robot, planning_env, planner, vis_short=False, bis_short=False):
     if not plan:
         print("NO SOLUTION FOUND")
         return 
+    pl.draw()
         
     traj = robot.ConvertPlanToTrajectory(plan)
     if not vis_short and not bis_short:
