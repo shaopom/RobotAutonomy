@@ -19,6 +19,8 @@ class Planner(object):
         if plan: #non-empty path
             for i in range(len(plan)-1):
                 self.path_length += self.planning_env.ComputeDistanceConfig(plan[i], plan[i+1])
+                if self.visualize:
+                    self.planning_env.PlotEdge(plan[i], plan[i+1], 'r.-')
             return plan
         else:
             return None #obvious planning failure

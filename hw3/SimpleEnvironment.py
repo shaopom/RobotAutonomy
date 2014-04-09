@@ -147,10 +147,10 @@ class SimpleEnvironment(object):
         pl.ion()
         pl.show()
         
-    def PlotEdge(self, sconfig, econfig):
+    def PlotEdge(self, sconfig, econfig, color = 'k.-'):
         pl.plot([sconfig[0], econfig[0]],
                 [sconfig[1], econfig[1]],
-                'k.-', linewidth=2.5)
+                color, linewidth=2.5)
         pl.draw()
 
     #########################################################################
