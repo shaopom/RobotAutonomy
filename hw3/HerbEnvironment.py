@@ -133,7 +133,7 @@ class HerbEnvironment(object):
         # however, for a square grid map, the manhattan usually give a better result
         start_config = self.discrete_env.NodeIdToConfiguration(start_id)
         goal_config  = self.discrete_env.NodeIdToConfiguration(goal_id)
-        D = 1
+        D = 1.5
 	for i in xrange(len(start_config)):
         	delta = abs(start_config[i]-goal_config[i])
         	cost = cost + D*delta
